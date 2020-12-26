@@ -60,6 +60,7 @@ class xstr(str):
    def __init__(self, string: str):
       pass
 
+cwd = os.getcwd()
 script_dir = os.path.dirname(__file__)
 delim_char = '/' if( os.name == 'posix' )else '\\'
 dbd_path = f'{script_dir}{delim_char}dbd.json'
@@ -102,20 +103,20 @@ def register(dbd_file):
 
 
 def path_to_sqldump():
-   global delim_char
+   global delim_char, cwd, dbd_json
 
    target_file = ''
-   exec_dir = os.getcwd()
-   folder = list(map(lambda f: f.name, os.scandir(exec_dir)))
+   cwd = os.getcwd()
+   folder = list(map(lambda f: f.name, os.scandir(cwd)))
    if 'SQLDUMP' in folder:
-      target_file = delim_char.join(['.', 'SQLDUMP', f"{dbd_json['db']}.sql"])
+      target_file = delim_char.join([cwd, 'SQLDUMP', f"{dbd_json['db']}.sql"])
       
    # was ./back/SQLDUMP if we are in back folder
-   #elif exec_dir.split(delim_char).pop() == 'back':
+   #elif cwd.split(delim_char).pop() == 'back':
    #   target_file = delim_char.join(['.', 'SQLDUMP', f"{dbd_json['db']}.sql"])
       
    else:
-      target_folder = exec_dir.split(delim_char)
+      target_folder = cwd.split(delim_char)
       last = target_folder.pop()
       while (last != 'SQLDUMP'):
          if (len(target_folder) == 0):
@@ -123,9 +124,11 @@ def path_to_sqldump():
             exit()
          last = target_folder.pop()
       
-      target_file = delim_char.join(target_folder + [last, 'SQLDUMP', 'vodopoj.sql'])
+      target_file = delim_char.join(target_folder + [last, 'SQLDUMP', f"{dbd_json['db']}.sql"])
       
+   print(target_file)
    return target_file
+
 
 dbd_json = {}
 def get_dbd_json(mode):
@@ -154,11 +157,13 @@ if len(argv) > 0:
       Settings file: <underline|{dbd_path}>
    """))
 
-   elif argv[0] == 'relogin':
+   elif argv[0] == 'start':
       with open(dbd_path, 'w+', encoding='utf8') as dbd_file:
          register(dbd_file)
          
-   elif argv[0] == 'import':
+   elif argv[0] == 'pull':
+      os.system('git pull')
+      
       get_dbd_json_anyway()
       sqldump = path_to_sqldump()
          
@@ -173,17 +178,26 @@ if len(argv) > 0:
          
       os.system(f"{mysql_bin} --user={dbd_json['user']} --password={dbd_json['pwrd']} {dbd_json['db']} < {sqldump}")
       
+   elif argv[0] == 'push':
+      get_dbd_json_anyway()
+      sqldump = path_to_sqldump()
+         
+      mysqldump_bin = ''
+      if dbd_json['server'] == 'LAMP':
+         mysqldump_bin = f"mysqldump"
+      elif dbd_json['server'] == 'OpenServer':
+         mysqldump_bin = f"{dbd_json['server_folder']}\\modules\\database\\{dbd_json['mysql_ver']}\\bin\\mysqldump.exe"
+      else:
+         print(NOT_CORRECT_SERVER)
+         exit()
+         
+      os.system(f"{mysqldump_bin} --user={dbd_json['user']} --password={dbd_json['pwrd']} {dbd_json['db']} > {sqldump}")
+      
+      sqldump_dir = os.path.dirname(sqldump)
+      os.system(f'git add {sqldump_dir}')
+      os.system('git commit -m "sqldump"')
+      os.system('git push')
+      
 else:
-   get_dbd_json_anyway()
-   sqldump = path_to_sqldump()
-      
-   mysqldump_bin = ''
-   if dbd_json['server'] == 'LAMP':
-      mysqldump_bin = f"mysqldump"
-   elif dbd_json['server'] == 'OpenServer':
-      mysqldump_bin = f"{dbd_json['server_folder']}\\modules\\database\\{dbd_json['mysql_ver']}\\bin\\mysqldump.exe"
-   else:
-      print(NOT_CORRECT_SERVER)
-      exit()
-      
-   os.system(f"{mysqldump_bin} --user={dbd_json['user']} --password={dbd_json['pwrd']} {dbd_json['db']} > {sqldump}")
+   print('Error: no args given. Try: start, pull or push')
+   
