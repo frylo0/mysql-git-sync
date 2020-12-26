@@ -7,9 +7,9 @@ Now you gonna to configure this tool to connect to DB.
 """)
 
 I = '/' if( os.name == 'posix' )else '\\'
-script_dir = os.path.dirname(__file__)
+script_dir = os.path.abspath(os.path.dirname(__file__))
 def dbd(arg):
-   os.system(f'{py} .{script_dir}{I}env{I}dbd.py {arg}')
+   os.system(f'{py} {script_dir}{I}env{I}dbd.py {arg}')
    
 dbd('relogin')
 
