@@ -150,9 +150,9 @@ if len(argv) > 0:
       print(xstr(f"""Production by <purple|frity corp.>: http://frity.ru/
    Tool to create mysqldump to folder
       <blue|python3> <cyan|dbd.py> <yellow|--help>  - show help
-      <blue|python3> <cyan|dbd.py> <yellow|relogin> - remove user and password and as for new
-      <blue|python3> <cyan|dbd.py>         - create mysqldump and put file to SQLDUMP folder. SQLDUMP search: cd up until 'back' folder, then cd to SQLDUMP
-      <blue|python3> <cyan|dbd.py> <yellow|import>  - imports data from SQLDUMP folder. SQLDUMP search: cd up until 'back' folder, then cd to SQLDUMP
+      <blue|python3> <cyan|dbd.py> <yellow|start> - renew connection data
+      <blue|python3> <cyan|dbd.py> <yellow|push>  - push database to github
+      <blue|python3> <cyan|dbd.py> <yellow|pull>  - pull database from github
    Info:
       Settings file: <underline|{dbd_path}>
    """))
