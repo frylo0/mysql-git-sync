@@ -108,23 +108,23 @@ def path_to_sqldump():
    target_file = ''
    cwd = os.getcwd()
    folder = list(map(lambda f: f.name, os.scandir(cwd)))
-   if 'SQLDUMP' in folder:
-      target_file = delim_char.join([cwd, 'SQLDUMP', f"{dbd_json['db']}.sql"])
+   if 'sqldump' in folder:
+      target_file = delim_char.join([cwd, 'sqldump', f"{dbd_json['db']}.sql"])
       
-   # was ./back/SQLDUMP if we are in back folder
+   # was ./back/sqldump if we are in back folder
    #elif cwd.split(delim_char).pop() == 'back':
-   #   target_file = delim_char.join(['.', 'SQLDUMP', f"{dbd_json['db']}.sql"])
+   #   target_file = delim_char.join(['.', 'sqldump', f"{dbd_json['db']}.sql"])
       
    else:
       target_folder = cwd.split(delim_char)
       last = target_folder.pop()
-      while (last != 'SQLDUMP'):
+      while (last != 'sqldump'):
          if (len(target_folder) == 0):
-            print('Не удалось найти папку SQLDUMP, возможно вам стоит перейти в другую папку.')
+            print('Не удалось найти папку sqldump, возможно вам стоит перейти в другую папку.')
             exit()
          last = target_folder.pop()
       
-      target_file = delim_char.join(target_folder + [last, 'SQLDUMP', f"{dbd_json['db']}.sql"])
+      target_file = delim_char.join(target_folder + [last, 'sqldump', f"{dbd_json['db']}.sql"])
       
    print(target_file)
    return target_file
